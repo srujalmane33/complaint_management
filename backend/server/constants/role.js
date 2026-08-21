@@ -1,0 +1,12 @@
+const ROLES = {
+  STUDENT: "STUDENT",
+  TEACHER: "TEACHER",
+  ADMIN: "ADMIN",
+};
+
+module.exports = {
+  ROLES,
+  STUDENT: ROLES.STUDENT,
+  TEACHER: ROLES.TEACHER,
+  ADMIN: ROLES.ADMIN,
+};
