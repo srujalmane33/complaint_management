@@ -27,13 +27,14 @@ function Unauthorized() {
 export default function App() {
   return (
     <Routes>
-      <Route element={<Layout />}>
-        {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
+      {/* Full-Screen Auth Pages (No Navbar / No Layout) */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
 
+      {/* Authenticated Application Pages (Wrapped with Navbar & Layout) */}
+      <Route element={<Layout />}>
         {/* Student Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
           <Route path="/student/dashboard" element={<StudentDashboard />} />
@@ -47,7 +48,7 @@ export default function App() {
           <Route path="/teacher/complaints/:id/verify" element={<VerifyComplaint />} />
         </Route>
 
-        {/* Admin Protected Routes (Next Module) */}
+        {/* Admin Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
           <Route
             path="/admin/dashboard"
@@ -55,7 +56,7 @@ export default function App() {
           />
         </Route>
 
-        {/* Catch-All */}
+        {/* Catch-All Inside Layout */}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
