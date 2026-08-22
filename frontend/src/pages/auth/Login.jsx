@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import InteractiveBackground from "../../components/common/InteractiveBackground";
 import { loginUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../constants/roles";
@@ -49,39 +50,18 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen w-screen bg-[#0d1527] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans select-none">
+    <div className="h-screen w-screen relative overflow-hidden flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans select-none">
       
-      {/* Background Animated Glows */}
-      <motion.div
-        animate={{
-          x: [0, 70, -60, 0],
-          y: [0, -70, 50, 0],
-          scale: [1, 1.2, 0.9, 1],
-        }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-[5%] left-[8%] w-96 h-96 bg-blue-600/30 rounded-full blur-[110px] pointer-events-none"
-      />
-      <motion.div
-        animate={{
-          x: [0, -70, 60, 0],
-          y: [0, 60, -50, 0],
-          scale: [1, 1.25, 0.85, 1],
-        }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-[8%] right-[8%] w-[420px] h-[420px] bg-indigo-500/25 rounded-full blur-[120px] pointer-events-none"
-      />
-
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+      {/* Interactive Cursor Spotlight Background */}
+      <InteractiveBackground />
 
       {/* Main Glassmorphic Split Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[880px] min-h-[520px] sm:min-h-[550px] max-h-[92vh] bg-white rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] border border-white/20 flex flex-col md:flex-row overflow-hidden z-10"
+        className="w-full max-w-[880px] min-h-[520px] sm:min-h-[550px] max-h-[92vh] bg-white rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.55)] border border-white/20 flex flex-col md:flex-row overflow-hidden z-10"
       >
-        
         {/* Left Electric Blue Panel */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
