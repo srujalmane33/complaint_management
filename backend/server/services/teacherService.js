@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const QUERIES = require("../config/queries");
 
 let rawStatus;
 try {
@@ -17,29 +18,10 @@ const PENDING_STATUS = COMPLAINT_STATUS.PENDING_REVIEW || "PENDING_REVIEW";
 
 const getPendingComplaints = async () => {
   try {
-    const query = `
-      SELECT 
-        c.id,
-        c.complaint_number,
-        c.title,
-        c.description,
-        c.location,
-        c.priority,
-        c.status,
-        c.created_at,
-        u.name AS student_name,
-        u.email AS student_email,
-        s.roll_number,
-        s.course,
-        s.year
-      FROM complaints c
-      JOIN students s ON c.student_id = s.id
-      JOIN users u ON s.user_id = u.id
-      WHERE c.status = ?
-      ORDER BY c.created_at DESC
-    `;
-
-    const [rows] = await pool.execute(query, [PENDING_STATUS]);
+    const [rows] = await pool.execute(
+      QUERIES.TEACHER.GET_PENDING_COMPLAINTS,
+      [PENDING_STATUS]
+    );
     return rows;
   } catch (error) {
     console.error("Error in getPendingComplaints:", error);
@@ -49,47 +31,19 @@ const getPendingComplaints = async () => {
 
 const getComplaintById = async (complaintId) => {
   try {
-    const complaintQuery = `
-      SELECT 
-        c.id,
-        c.complaint_number,
-        c.title,
-        c.description,
-        c.location,
-        c.priority,
-        c.status,
-        c.created_at,
-        u.name AS student_name,
-        u.email AS student_email,
-        s.roll_number,
-        s.course,
-        s.year
-      FROM complaints c
-      JOIN students s ON c.student_id = s.id
-      JOIN users u ON s.user_id = u.id
-      WHERE c.id = ?
-    `;
-
-    const [complaintRows] = await pool.execute(complaintQuery, [complaintId]);
+    const [complaintRows] = await pool.execute(
+      QUERIES.TEACHER.GET_COMPLAINT_BY_ID_FOR_TEACHER,
+      [complaintId]
+    );
 
     if (complaintRows.length === 0) {
       return null;
     }
 
-    const historyQuery = `
-      SELECT 
-        id,
-        user_id,
-        old_status,
-        new_status,
-        remark,
-        created_at
-      FROM complaint_updates
-      WHERE complaint_id = ?
-      ORDER BY created_at ASC
-    `;
-
-    const [historyRows] = await pool.execute(historyQuery, [complaintId]);
+    const [historyRows] = await pool.execute(
+      QUERIES.TEACHER.GET_COMPLAINT_HISTORY_FOR_TEACHER,
+      [complaintId]
+    );
 
     return {
       complaint: complaintRows[0],
@@ -108,7 +62,7 @@ const verifyComplaint = async (complaintId, status, remark, teacherUserId) => {
     await connection.beginTransaction();
 
     const [complaintRows] = await connection.execute(
-      "SELECT id, status FROM complaints WHERE id = ? FOR UPDATE",
+      QUERIES.TEACHER.LOCK_COMPLAINT_FOR_UPDATE,
       [complaintId]
     );
 
@@ -130,22 +84,15 @@ const verifyComplaint = async (complaintId, status, remark, teacherUserId) => {
 
     // 1. Update complaints table
     await connection.execute(
-      "UPDATE complaints SET status = ?, updated_at = NOW() WHERE id = ?",
+      QUERIES.TEACHER.UPDATE_COMPLAINT_STATUS,
       [status, complaintId]
     );
 
     // 2. Insert into complaint_updates with user_id
-    const historyQuery = `
-      INSERT INTO complaint_updates (complaint_id, user_id, old_status, new_status, remark, created_at)
-      VALUES (?, ?, ?, ?, ?, NOW())
-    `;
-    await connection.execute(historyQuery, [
-      complaintId,
-      teacherUserId,
-      currentStatus,
-      status,
-      remark,
-    ]);
+    await connection.execute(
+      QUERIES.COMPLAINT.INSERT_COMPLAINT_UPDATE_WITH_TIMESTAMP,
+      [complaintId, teacherUserId, currentStatus, status, remark]
+    );
 
     await connection.commit();
 

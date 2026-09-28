@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const pool = require("../config/db");
+const QUERIES = require("../config/queries");
 const generateToken = require("../utils/generateToken");
 
 const registerStudent = async ({
@@ -17,7 +18,7 @@ const registerStudent = async ({
     await connection.beginTransaction();
 
     const [existingUsers] = await connection.execute(
-      "SELECT id FROM users WHERE email = ?",
+      QUERIES.AUTH.FIND_USER_BY_EMAIL,
       [email]
     );
 
@@ -26,7 +27,7 @@ const registerStudent = async ({
     }
 
     const [existingStudents] = await connection.execute(
-      "SELECT id FROM students WHERE roll_number = ?",
+      QUERIES.AUTH.FIND_STUDENT_BY_ROLL_NUMBER,
       [roll_number]
     );
 
@@ -35,7 +36,7 @@ const registerStudent = async ({
     }
 
     const [departments] = await connection.execute(
-      "SELECT id FROM departments WHERE id = ?",
+      QUERIES.AUTH.FIND_DEPARTMENT_BY_ID,
       [department_id]
     );
 
@@ -46,18 +47,14 @@ const registerStudent = async ({
     const passwordHash = await bcrypt.hash(password, 10);
 
     const [userResult] = await connection.execute(
-      `INSERT INTO users
-       (name, email, password_hash, role)
-       VALUES (?, ?, ?, 'STUDENT')`,
+      QUERIES.AUTH.INSERT_STUDENT_USER,
       [name, email, passwordHash]
     );
 
     const userId = userResult.insertId;
 
     await connection.execute(
-      `INSERT INTO students
-       (user_id, roll_number, course, year, department_id)
-       VALUES (?, ?, ?, ?, ?)`,
+      QUERIES.AUTH.INSERT_STUDENT_PROFILE,
       [userId, roll_number, course, year, department_id]
     );
 
@@ -97,7 +94,7 @@ const registerTeacher = async ({
     await connection.beginTransaction();
 
     const [existingUsers] = await connection.execute(
-      "SELECT id FROM users WHERE email = ?",
+      QUERIES.AUTH.FIND_USER_BY_EMAIL,
       [email]
     );
 
@@ -106,7 +103,7 @@ const registerTeacher = async ({
     }
 
     const [departments] = await connection.execute(
-      "SELECT id FROM departments WHERE id = ?",
+      QUERIES.AUTH.FIND_DEPARTMENT_BY_ID,
       [department_id]
     );
 
@@ -117,18 +114,14 @@ const registerTeacher = async ({
     const passwordHash = await bcrypt.hash(password, 10);
 
     const [userResult] = await connection.execute(
-      `INSERT INTO users
-       (name, email, password_hash, role)
-       VALUES (?, ?, ?, 'TEACHER')`,
+      QUERIES.AUTH.INSERT_TEACHER_USER,
       [name, email, passwordHash]
     );
 
     const userId = userResult.insertId;
 
     await connection.execute(
-      `INSERT INTO teachers
-       (user_id, department_id, employee_id)
-       VALUES (?, ?, ?)`,
+      QUERIES.AUTH.INSERT_TEACHER_PROFILE,
       [userId, department_id, employee_id]
     );
 
@@ -157,14 +150,7 @@ const registerTeacher = async ({
 
 const login = async ({ email, password }) => {
   const [users] = await pool.execute(
-    `SELECT
-        id,
-        name,
-        email,
-        password_hash,
-        role
-     FROM users
-     WHERE email = ?`,
+    QUERIES.AUTH.GET_USER_FOR_LOGIN,
     [email]
   );
 
@@ -200,14 +186,7 @@ const login = async ({ email, password }) => {
 
 const getCurrentUser = async (userId) => {
   const [users] = await pool.execute(
-    `SELECT
-        id,
-        name,
-        email,
-        role,
-        created_at
-     FROM users
-     WHERE id = ?`,
+    QUERIES.AUTH.GET_CURRENT_USER,
     [userId]
   );
 

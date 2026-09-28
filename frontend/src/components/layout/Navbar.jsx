@@ -14,14 +14,14 @@ export default function Navbar() {
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
+        
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base">
               C
             </div>
             <span className="font-bold text-gray-900 text-base tracking-tight">
               CMS Portal
             </span>
-          </Link>
+    
           {user && (
             <span className="hidden sm:inline-block ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs font-semibold uppercase">
               {user.role}

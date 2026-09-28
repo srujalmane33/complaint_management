@@ -63,6 +63,7 @@ const login = async (req, res) => {
       });
     }
 
+    
     const result = await authService.login({
       email,
       password,
