@@ -1,15 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { PageLoader } from "../common/Skeleton";
 
 export default function ProtectedRoute({ allowedRoles }) {
   const { user, token, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="text-gray-500 text-sm font-medium">Checking authentication...</div>
-      </div>
-    );
+    return <PageLoader message="Verifying your session..." />;
   }
 
   if (!token || !user) {

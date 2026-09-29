@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 
+// Default protect middleware — verifies JWT token
 const protect = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -13,10 +14,7 @@ const protect = (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded;
 
@@ -29,4 +27,23 @@ const protect = (req, res, next) => {
   }
 };
 
+// Named alias for consistency with adminRoute.js
+const authenticateToken = protect;
+
+// Role-based authorization middleware factory
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Insufficient permissions.",
+      });
+    }
+    next();
+  };
+};
+
 module.exports = protect;
+module.exports.protect = protect;
+module.exports.authenticateToken = authenticateToken;
+module.exports.authorizeRoles = authorizeRoles;

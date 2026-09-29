@@ -104,9 +104,6 @@ const getMe = async (req, res) => {
   }
 };
 
-
-
-
 const registerTeacher = async (req, res, next) => {
   try {
     const result = await authService.registerTeacher(req.body);

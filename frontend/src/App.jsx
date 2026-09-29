@@ -13,13 +13,29 @@ import ComplaintDetails from "./pages/student/ComplaintDetails";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import VerifyComplaint from "./pages/teacher/VerifyComplaint";
 
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageComplaints from "./pages/admin/ManageComplaints";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminRegister from "./pages/admin/AdminRegister";
+
 import NotFound from "./pages/NotFound";
 
 function Unauthorized() {
   return (
-    <div className="text-center py-20">
-      <h1 className="text-3xl font-bold text-gray-900">403 - Access Denied</h1>
-      <p className="text-sm text-gray-500 mt-2">You do not have permission to view this page.</p>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+      <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center text-3xl mb-4">
+        🚫
+      </div>
+      <h1 className="text-2xl font-bold text-gray-900">403 — Access Denied</h1>
+      <p className="text-sm text-gray-500 mt-2 max-w-sm">
+        You don't have permission to view this page. Please contact your administrator.
+      </p>
+      <a
+        href="/login"
+        className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition"
+      >
+        Back to Login
+      </a>
     </div>
   );
 }
@@ -27,13 +43,15 @@ function Unauthorized() {
 export default function App() {
   return (
     <Routes>
-      {/* Full-Screen Auth Pages (No Navbar / No Layout) */}
+      {/* Full-Screen Auth Pages */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/register" element={<AdminRegister />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* Authenticated Application Pages (Wrapped with Navbar & Layout) */}
+      {/* Authenticated Application Pages */}
       <Route element={<Layout />}>
         {/* Student Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
@@ -50,10 +68,8 @@ export default function App() {
 
         {/* Admin Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
-          <Route
-            path="/admin/dashboard"
-            element={<div className="p-8 text-lg font-bold">Admin Module (Next)</div>}
-          />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/complaints" element={<ManageComplaints />} />
         </Route>
 
         {/* Catch-All Inside Layout */}
