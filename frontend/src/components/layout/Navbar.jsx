@@ -38,6 +38,7 @@ export default function Navbar() {
     navigate("/login");
   };
 
+<<<<<<< HEAD
   const getHomePath = () => {
     if (!user) return "/login";
     switch (user.role) {
@@ -52,6 +53,8 @@ export default function Navbar() {
     }
   };
 
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const navLinks = user ? roleNavLinks[user.role] || [] : [];
   const badgeClass = user ? roleStyle[user.role] || "bg-gray-100 text-gray-600" : "";
   const accent = user ? roleAccent[user.role] || "blue" : "blue";
@@ -65,7 +68,11 @@ export default function Navbar() {
 
         {/* ── Left: Logo + Nav ── */}
         <div className="flex items-center gap-5 min-w-0">
+<<<<<<< HEAD
           <Link to={getHomePath()} className="flex items-center gap-2.5 flex-shrink-0 group">
+=======
+          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-600/25 group-hover:shadow-blue-600/40 transition-shadow">
               C
             </div>

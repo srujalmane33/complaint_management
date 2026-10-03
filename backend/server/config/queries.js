@@ -89,8 +89,13 @@ const QUERIES = {
     /** Insert a new complaint */
     INSERT_COMPLAINT: `
       INSERT INTO complaints
+<<<<<<< HEAD
         (complaint_number, student_id, category_id, title, description, location, priority, status, image_url)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+=======
+        (complaint_number, student_id, category_id, title, description, location, priority, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
     `,
 
     /** Insert initial complaint history entry */
@@ -116,7 +121,10 @@ const QUERIES = {
         c.location,
         c.priority,
         c.status,
+<<<<<<< HEAD
         c.image_url,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         c.created_at,
         cc.name AS category
       FROM complaints c
@@ -134,7 +142,10 @@ const QUERIES = {
         c.location,
         c.priority,
         c.status,
+<<<<<<< HEAD
         c.image_url,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         c.created_at,
         c.updated_at,
         cc.name AS category
@@ -154,7 +165,10 @@ const QUERIES = {
         c.location,
         c.priority,
         c.status,
+<<<<<<< HEAD
         c.image_url,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         c.created_at,
         c.updated_at,
         cc.name AS category
@@ -196,7 +210,10 @@ const QUERIES = {
         c.location,
         c.priority,
         c.status,
+<<<<<<< HEAD
         c.image_url,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         c.created_at,
         u.name AS student_name,
         u.email AS student_email,
@@ -220,7 +237,10 @@ const QUERIES = {
         c.location,
         c.priority,
         c.status,
+<<<<<<< HEAD
         c.image_url,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         c.created_at,
         u.name AS student_name,
         u.email AS student_email,
