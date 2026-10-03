@@ -6,21 +6,20 @@ import { TableSkeleton, ErrorAlert, EmptyState, Spinner } from "../../components
 import ImageModal from "../../components/common/ImageModal";
 import { getImageUrl } from "../../utils/getImageUrl";
 
-const CATEGORIES = [
-  { value: "", label: "All Categories", icon: "📋" },
-  { value: "Classroom & Infrastructure", label: "Classroom & Infrastructure", icon: "🏫" },
-  { value: "Laboratory & Equipment",     label: "Laboratory & Equipment",     icon: "🔬" },
-  { value: "Hostel & Mess",              label: "Hostel & Mess",              icon: "🏢" },
-  { value: "Library Services",           label: "Library Services",           icon: "📚" },
-  { value: "Electrical / Maintenance",   label: "Electrical / Maintenance",   icon: "⚡" },
-];
-
-const CATEGORY_COLORS = {
-  "Classroom & Infrastructure": "bg-blue-50 text-blue-700 border-blue-200",
-  "Laboratory & Equipment":     "bg-purple-50 text-purple-700 border-purple-200",
-  "Hostel & Mess":              "bg-amber-50 text-amber-700 border-amber-200",
-  "Library Services":           "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "Electrical / Maintenance":   "bg-rose-50 text-rose-700 border-rose-200",
+const CATEGORY_META = {
+  "Infrastructure":              { icon: "🏫", color: "bg-blue-50 text-blue-700 border-blue-200" },
+  "Classroom & Infrastructure":  { icon: "🏫", color: "bg-blue-50 text-blue-700 border-blue-200" },
+  "Laboratory & Equipment":      { icon: "🔬", color: "bg-purple-50 text-purple-700 border-purple-200" },
+  "Cleanliness":                 { icon: "🧹", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  "Hostel & Mess":               { icon: "🏢", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  "Hostel":                      { icon: "🏢", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  "Internet":                    { icon: "📶", color: "bg-cyan-50 text-cyan-700 border-cyan-200" },
+  "Library Services":            { icon: "📚", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  "Academic":                    { icon: "🎓", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+  "Electrical":                  { icon: "⚡", color: "bg-rose-50 text-rose-700 border-rose-200" },
+  "Electrical / Maintenance":    { icon: "⚡", color: "bg-rose-50 text-rose-700 border-rose-200" },
+  "Transport":                   { icon: "🚌", color: "bg-teal-50 text-teal-700 border-teal-200" },
+  "Other":                       { icon: "📌", color: "bg-gray-50 text-gray-700 border-gray-200" },
 };
 
 const STATUSES = [
@@ -42,10 +41,11 @@ const PRIORITIES = [
 ];
 
 function CategoryBadge({ category }) {
-  const color = CATEGORY_COLORS[category] || "bg-gray-50 text-gray-700 border-gray-200";
+  const meta = CATEGORY_META[category] || { icon: "📋", color: "bg-gray-50 text-gray-700 border-gray-200" };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${color}`}>
-      {category || "General"}
+    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${meta.color}`}>
+      <span>{meta.icon}</span>
+      <span>{category || "General"}</span>
     </span>
   );
 }
@@ -72,9 +72,9 @@ function ResolveModal({ complaint, onClose, onSuccess, onOpenImage }) {
   };
 
   const quickStatuses = [
-    { value: "IN_PROGRESS", label: "In Progress", color: "indigo" },
-    { value: "RESOLVED",    label: "Resolved",    color: "emerald" },
-    { value: "CLOSED",      label: "Closed",      color: "gray" },
+    { value: "IN_PROGRESS", label: "In Progress" },
+    { value: "RESOLVED",    label: "Resolved" },
+    { value: "CLOSED",      label: "Closed" },
   ];
 
   return (
@@ -360,7 +360,14 @@ export default function ManageComplaints() {
     try {
       setLoading(true);
       setError("");
-      const res = await getAllComplaints(filters);
+      // Fetch complaints from server without filtering category on the API, 
+      // so we have the complete data to calculate global category rankings and sort client-side accurately
+      const apiFilters = {
+        status: filters.status,
+        priority: filters.priority,
+        search: filters.search,
+      };
+      const res = await getAllComplaints(apiFilters);
       setComplaints(Array.isArray(res?.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load complaints");
@@ -368,9 +375,11 @@ export default function ManageComplaints() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters.status, filters.priority, filters.search]);
 
-  useEffect(() => { fetchComplaints(); }, [fetchComplaints]);
+  useEffect(() => {
+    fetchComplaints();
+  }, [fetchComplaints]);
 
   const handleFilterChange = (key, value) => setFilters((prev) => ({ ...prev, [key]: value }));
   const clearFilters = () => setFilters({ status: "", priority: "", category: "", search: "", sortBy: "category_frequency" });
@@ -379,55 +388,75 @@ export default function ManageComplaints() {
   const verifiedCount   = complaints.filter((c) => c.verified_by_teacher).length;
   const unverifiedCount = complaints.filter((c) => !c.verified_by_teacher).length;
 
-  // ── Calculate category complaint counts & ranking ────────────────────────
+  // ── Calculate category complaint counts & ranking dynamically from loaded complaints ──
   const categoryStats = useMemo(() => {
     const counts = {};
-    CATEGORIES.filter((c) => c.value).forEach((cat) => {
-      counts[cat.value] = 0;
-    });
 
     complaints.forEach((c) => {
-      const cat = c.category;
-      if (cat) {
-        counts[cat] = (counts[cat] || 0) + 1;
-      }
+      const cat = c.category || "General";
+      counts[cat] = (counts[cat] || 0) + 1;
     });
 
     let topCategory = null;
     let maxCount = 0;
 
-    Object.entries(counts).forEach(([cat, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        topCategory = cat;
-      }
-    });
+    // Sort categories by descending count
+    const rankedCategories = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, count]) => ({ name: cat, count }));
 
-    return { counts, topCategory, maxCount };
+    if (rankedCategories.length > 0) {
+      topCategory = rankedCategories[0].name;
+      maxCount = rankedCategories[0].count;
+    }
+
+    return { counts, topCategory, maxCount, rankedCategories };
   }, [complaints]);
 
-  // ── Compute sorted complaints ──────────────────────────────────────────
+  // ── Compute sorted and filtered complaints ───────────────────────────────
   const sortedComplaints = useMemo(() => {
     let list = [...complaints];
 
+    // 1. Client-side category filter (matches by name or ID)
     if (filters.category) {
-      list = list.filter((c) => c.category === filters.category);
+      list = list.filter((c) => {
+        const cat = c.category || "General";
+        return cat.toLowerCase() === filters.category.toLowerCase() || String(c.category_id) === String(filters.category);
+      });
     }
 
+    // 2. Sorting
     if (filters.sortBy === "category_frequency") {
+      // Prioritize complaints from the category having the most complaints overall
       list.sort((a, b) => {
-        const countA = categoryStats.counts[a.category] || 0;
-        const countB = categoryStats.counts[b.category] || 0;
+        const catA = a.category || "General";
+        const catB = b.category || "General";
+        const countA = categoryStats.counts[catA] || 0;
+        const countB = categoryStats.counts[catB] || 0;
+
+        // Highest total complaints category at top
         if (countB !== countA) {
           return countB - countA;
         }
+
+        // Group identical categories together
+        if (catA !== catB) {
+          return catA.localeCompare(catB);
+        }
+
+        // Within the same category: Urgent priority first, then newest
         const priorityOrder = { URGENT: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
         const prioDiff = (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
         if (prioDiff !== 0) return prioDiff;
+
         return new Date(b.created_at || 0) - new Date(a.created_at || 0);
       });
     } else if (filters.sortBy === "category_az") {
-      list.sort((a, b) => (a.category || "").localeCompare(b.category || ""));
+      list.sort((a, b) => {
+        const catA = a.category || "General";
+        const catB = b.category || "General";
+        return catA.localeCompare(catB);
+      });
     } else if (filters.sortBy === "priority") {
       const priorityOrder = { URGENT: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       list.sort((a, b) => (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0));
@@ -439,6 +468,12 @@ export default function ManageComplaints() {
 
     return list;
   }, [complaints, filters.category, filters.sortBy, categoryStats]);
+
+  // List of all unique categories available for filter dropdown
+  const availableCategories = useMemo(() => {
+    const list = categoryStats.rankedCategories.map((r) => r.name);
+    return list;
+  }, [categoryStats.rankedCategories]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -485,53 +520,57 @@ export default function ManageComplaints() {
       </div>
 
       {/* ── Category Quick-Filter Cards & Ranking ── */}
-      {!loading && complaints.length > 0 && (
+      {!loading && categoryStats.rankedCategories.length > 0 && (
         <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-              Complaints by Category (Click to Filter)
+              Category Rankings & Complaint Distribution
             </h3>
             {categoryStats.topCategory && categoryStats.maxCount > 0 && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                🔥 Highest Priority Category: <span className="underline">{categoryStats.topCategory}</span> ({categoryStats.maxCount})
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                🔥 Top Priority Category: <span className="underline font-extrabold">{categoryStats.topCategory}</span> ({categoryStats.maxCount} complaints)
               </span>
             )}
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-            {CATEGORIES.filter((c) => c.value).map((cat) => {
-              const count = categoryStats.counts[cat.value] || 0;
-              const isSelected = filters.category === cat.value;
-              const isTop = categoryStats.topCategory === cat.value && count > 0;
+            {categoryStats.rankedCategories.map((cat, idx) => {
+              const meta = CATEGORY_META[cat.name] || { icon: "📋", color: "" };
+              const isSelected = filters.category.toLowerCase() === cat.name.toLowerCase();
+              const isTop = idx === 0 && cat.count > 0;
               return (
                 <button
-                  key={cat.value}
-                  onClick={() => handleFilterChange("category", isSelected ? "" : cat.value)}
+                  key={cat.name}
+                  onClick={() => handleFilterChange("category", isSelected ? "" : cat.name)}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     isSelected
                       ? "bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/20"
                       : isTop
-                      ? "bg-amber-50/70 border-amber-300 text-gray-800 hover:bg-amber-100/70"
+                      ? "bg-amber-50/80 border-amber-300 text-gray-800 hover:bg-amber-100/80"
                       : "bg-gray-50/70 border-gray-200 text-gray-700 hover:bg-gray-100/70"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-base">{cat.icon}</span>
+                    <span className="text-base">{meta.icon}</span>
                     <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
                       isSelected
                         ? "bg-white/20 text-white"
                         : isTop
-                        ? "bg-amber-200 text-amber-900"
-                        : "bg-gray-200 text-gray-800"
+                        ? "bg-amber-200 text-amber-900 font-bold"
+                        : "bg-gray-200 text-gray-800 font-bold"
                     }`}>
-                      {count}
+                      {cat.count}
                     </span>
                   </div>
                   <p className={`text-xs font-bold mt-2 truncate ${isSelected ? "text-white" : "text-gray-900"}`}>
-                    {cat.label}
+                    {cat.name}
                   </p>
-                  {isTop && (
-                    <p className={`text-[10px] font-semibold mt-0.5 ${isSelected ? "text-amber-200" : "text-amber-700"}`}>
-                      ★ Top Priority
+                  {isTop ? (
+                    <p className={`text-[10px] font-bold mt-0.5 ${isSelected ? "text-amber-200" : "text-amber-700"}`}>
+                      ★ Priority 1 (Most Complaints)
+                    </p>
+                  ) : (
+                    <p className={`text-[10px] font-medium mt-0.5 ${isSelected ? "text-gray-300" : "text-gray-400"}`}>
+                      Priority #{idx + 1}
                     </p>
                   )}
                 </button>
@@ -572,11 +611,16 @@ export default function ManageComplaints() {
             onChange={(e) => handleFilterChange("category", e.target.value)}
             className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white"
           >
-            {CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.icon} {c.label}
-              </option>
-            ))}
+            <option value="">📋 All Categories</option>
+            {availableCategories.map((catName) => {
+              const meta = CATEGORY_META[catName] || { icon: "📋" };
+              const count = categoryStats.counts[catName] || 0;
+              return (
+                <option key={catName} value={catName}>
+                  {meta.icon} {catName} ({count})
+                </option>
+              );
+            })}
           </select>
 
           {/* Status Filter */}
@@ -601,7 +645,7 @@ export default function ManageComplaints() {
           <select
             value={filters.sortBy || "category_frequency"}
             onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm text-blue-950 bg-blue-50 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
+            className="px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm text-blue-950 bg-blue-50 font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
           >
             <option value="category_frequency">📊 Sort: Category with Most Complaints First (Priority)</option>
             <option value="category_az">🔤 Sort: Category (A to Z)</option>
@@ -670,7 +714,7 @@ export default function ManageComplaints() {
             <p className="text-xs text-gray-400">
               Showing {sortedComplaints.length} of {complaints.length} complaint{complaints.length !== 1 ? "s" : ""}
               {hasFilters ? " (filtered)" : ""}
-              &ensp;·&ensp;Click any row to expand details & attached images
+              &ensp;·&ensp;Sorted by category volume (highest complaints category prioritized at top)
             </p>
           </div>
         </div>
