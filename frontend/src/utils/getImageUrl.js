@@ -8,8 +8,11 @@ export const getImageUrl = (url) => {
   }
   
   // Resolve base API URL (e.g. http://localhost:3004)
-  const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:3004/api";
-  const baseUrl = apiBase.replace(/\/api\/?$/, "");
+  const apiBase =
+    import.meta.env.VITE_API_BASE_URL ||
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:3004/api";
+  const baseUrl = apiBase.replace(/\/api\/?$/, "").replace(/\/+$/, "");
   
   return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
 };

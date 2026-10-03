@@ -1,7 +1,15 @@
 import axios from "axios";
 
+const rawBaseUrl =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:3004/api";
+
+const cleanBaseUrl = rawBaseUrl.replace(/\/+$/, "");
+const baseURL = cleanBaseUrl.endsWith("/api") ? cleanBaseUrl : `${cleanBaseUrl}/api`;
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3004/api",
+  baseURL,
 });
 
 // Auth pages — no redirect should happen on these paths
