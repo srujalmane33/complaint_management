@@ -17,10 +17,8 @@ export const getAllComplaints = async (filters = {}) => {
   const params = new URLSearchParams();
   if (filters.status) params.append("status", filters.status);
   if (filters.priority) params.append("priority", filters.priority);
-<<<<<<< HEAD
   if (filters.category_id) params.append("category_id", filters.category_id);
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+  if (filters.category) params.append("category", filters.category);
   if (filters.department_id) params.append("department_id", filters.department_id);
   if (filters.search) params.append("search", filters.search);
 

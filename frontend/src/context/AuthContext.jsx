@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getMe } from "../services/authService";
 
 const AuthContext = createContext(null);
@@ -27,6 +27,24 @@ export const AuthProvider = ({ children }) => {
   });
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  const login = useCallback((authToken, userData) => {
+    const normalizedUser = {
+      ...userData,
+      role: String(userData.role).toUpperCase(),
+    };
+    localStorage.setItem("token", authToken);
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
+    setToken(authToken);
+    setUser(normalizedUser);
+  }, []);
 
   useEffect(() => {
     const verifyUser = async () => {
@@ -79,26 +97,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     verifyUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const login = (authToken, userData) => {
-    const normalizedUser = {
-      ...userData,
-      role: String(userData.role).toUpperCase(),
-    };
-    localStorage.setItem("token", authToken);
-    localStorage.setItem("user", JSON.stringify(normalizedUser));
-    setToken(authToken);
-    setUser(normalizedUser);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  };
+  }, [logout]);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout, isAuthenticated: !!token }}>

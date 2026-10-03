@@ -224,11 +224,7 @@ exports.getDashboardStats = async (req, res) => {
 // @access  Private (Admin only)
 exports.getAllComplaints = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { status, priority, category_id, search } = req.query;
-=======
-    const { status, priority, search } = req.query;
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+    const { status, priority, category_id, category, search } = req.query;
 
     // Schema:
     //   complaints: id, complaint_number, student_id→students.id, category_id, title, description, location, priority, status, created_at, updated_at
@@ -243,10 +239,8 @@ exports.getAllComplaints = async (req, res) => {
         c.location,
         c.priority,
         c.status,
-<<<<<<< HEAD
         c.image_url,
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+        c.attachment_url,
         c.created_at,
         c.updated_at,
         cc.name        AS category,
@@ -290,13 +284,14 @@ exports.getAllComplaints = async (req, res) => {
       query += ` AND c.priority = ?`;
       params.push(priority);
     }
-<<<<<<< HEAD
     if (category_id) {
       query += ` AND c.category_id = ?`;
       params.push(category_id);
     }
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+    if (category) {
+      query += ` AND (cc.name = ? OR c.category_id = ?)`;
+      params.push(category, category);
+    }
     if (search) {
       query += ` AND (c.title LIKE ? OR c.complaint_number LIKE ? OR u.name LIKE ?)`;
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);

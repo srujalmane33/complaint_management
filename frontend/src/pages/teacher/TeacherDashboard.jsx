@@ -14,10 +14,6 @@ export default function TeacherDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
 
-  useEffect(() => {
-    fetchPending();
-  }, []);
-
   const fetchPending = async () => {
     try {
       setLoading(true);
@@ -35,6 +31,10 @@ export default function TeacherDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPending();
+  }, []);
 
   const filteredComplaints = useMemo(() => {
     return complaints.filter((item) => {

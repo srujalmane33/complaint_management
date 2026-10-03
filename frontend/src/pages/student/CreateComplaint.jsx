@@ -12,11 +12,8 @@ export default function CreateComplaint() {
     location: "",
     priority: COMPLAINT_PRIORITY.MEDIUM,
   });
-<<<<<<< HEAD
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,7 +21,6 @@ export default function CreateComplaint() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-<<<<<<< HEAD
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -45,8 +41,6 @@ export default function CreateComplaint() {
     setImageFile(null);
   };
 
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -63,10 +57,7 @@ export default function CreateComplaint() {
       await createComplaint({
         ...formData,
         category_id: Number(formData.category_id),
-<<<<<<< HEAD
         image: imageFile,
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       });
       navigate("/student/dashboard");
     } catch (err) {
@@ -174,7 +165,6 @@ export default function CreateComplaint() {
           ></textarea>
         </div>
 
-<<<<<<< HEAD
         {/* Optional Problem Image Upload */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
@@ -211,8 +201,6 @@ export default function CreateComplaint() {
           )}
         </div>
 
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
           <Link
             to="/student/dashboard"

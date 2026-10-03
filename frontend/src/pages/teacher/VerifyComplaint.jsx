@@ -7,11 +7,8 @@ import {
 import { COMPLAINT_STATUS } from "../../constants/complaintStatus";
 import PriorityBadge from "../../components/common/PriorityBadge";
 import StatusBadge from "../../components/common/StatusBadge";
-<<<<<<< HEAD
 import ImageModal from "../../components/common/ImageModal";
 import { getImageUrl } from "../../utils/getImageUrl";
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 
 export default function VerifyComplaint() {
   const { id } = useParams();
@@ -21,10 +18,7 @@ export default function VerifyComplaint() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-<<<<<<< HEAD
   const [previewImage, setPreviewImage] = useState(null);
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [decision, setDecision] = useState({
     status: COMPLAINT_STATUS.GENUINE,
     remark: "",
@@ -84,11 +78,8 @@ export default function VerifyComplaint() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-<<<<<<< HEAD
       <ImageModal src={previewImage} onClose={() => setPreviewImage(null)} />
 
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       <Link
         to="/teacher/dashboard"
         className="inline-flex items-center text-xs font-semibold text-blue-600 hover:underline"
@@ -123,7 +114,6 @@ export default function VerifyComplaint() {
           </div>
         </div>
 
-<<<<<<< HEAD
         <div className="space-y-4">
           <div>
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -153,15 +143,6 @@ export default function VerifyComplaint() {
               </button>
             </div>
           )}
-=======
-        <div>
-          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-            Complaint Description
-          </h2>
-          <p className="text-xs text-gray-700 bg-gray-50 p-4 rounded-xl leading-relaxed whitespace-pre-line border border-gray-100">
-            {complaint.description}
-          </p>
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         </div>
 
         {/* Verification Form */}

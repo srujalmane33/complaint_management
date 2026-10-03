@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import { ROLES } from "./constants/roles";
+import { useAuth } from "./context/AuthContext";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -18,10 +19,6 @@ import ManageComplaints from "./pages/admin/ManageComplaints";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
 
-<<<<<<< HEAD
-import { useAuth } from "./context/AuthContext";
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 import NotFound from "./pages/NotFound";
 
 function Unauthorized() {
@@ -44,7 +41,6 @@ function Unauthorized() {
   );
 }
 
-<<<<<<< HEAD
 function RootRedirect() {
   const { user, token, loading } = useAuth();
 
@@ -65,17 +61,11 @@ function RootRedirect() {
   return <Navigate to="/login" replace />;
 }
 
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 export default function App() {
   return (
     <Routes>
       {/* Full-Screen Auth Pages */}
-<<<<<<< HEAD
       <Route path="/" element={<RootRedirect />} />
-=======
-      <Route path="/" element={<Navigate to="/login" replace />} />
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin/login" element={<AdminLogin />} />

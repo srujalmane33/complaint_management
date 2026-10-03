@@ -1,13 +1,27 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { getAllComplaints, resolveComplaint } from "../../services/adminService";
 import StatusBadge from "../../components/common/StatusBadge";
 import PriorityBadge from "../../components/common/PriorityBadge";
 import { TableSkeleton, ErrorAlert, EmptyState, Spinner } from "../../components/common/Skeleton";
-<<<<<<< HEAD
 import ImageModal from "../../components/common/ImageModal";
 import { getImageUrl } from "../../utils/getImageUrl";
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+
+const CATEGORIES = [
+  { value: "", label: "All Categories", icon: "📋" },
+  { value: "Classroom & Infrastructure", label: "Classroom & Infrastructure", icon: "🏫" },
+  { value: "Laboratory & Equipment",     label: "Laboratory & Equipment",     icon: "🔬" },
+  { value: "Hostel & Mess",              label: "Hostel & Mess",              icon: "🏢" },
+  { value: "Library Services",           label: "Library Services",           icon: "📚" },
+  { value: "Electrical / Maintenance",   label: "Electrical / Maintenance",   icon: "⚡" },
+];
+
+const CATEGORY_COLORS = {
+  "Classroom & Infrastructure": "bg-blue-50 text-blue-700 border-blue-200",
+  "Laboratory & Equipment":     "bg-purple-50 text-purple-700 border-purple-200",
+  "Hostel & Mess":              "bg-amber-50 text-amber-700 border-amber-200",
+  "Library Services":           "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "Electrical / Maintenance":   "bg-rose-50 text-rose-700 border-rose-200",
+};
 
 const STATUSES = [
   { value: "", label: "All Statuses" },
@@ -27,22 +41,17 @@ const PRIORITIES = [
   { value: "URGENT", label: "⚡ Urgent" },
 ];
 
-<<<<<<< HEAD
-const CATEGORIES = [
-  { value: "", label: "All Categories" },
-  { value: "1", label: "Classroom & Infrastructure" },
-  { value: "2", label: "Laboratory & Equipment" },
-  { value: "3", label: "Hostel & Mess" },
-  { value: "4", label: "Library Services" },
-  { value: "5", label: "Electrical / Maintenance" },
-];
+function CategoryBadge({ category }) {
+  const color = CATEGORY_COLORS[category] || "bg-gray-50 text-gray-700 border-gray-200";
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${color}`}>
+      {category || "General"}
+    </span>
+  );
+}
 
 // ── Resolve Modal ─────────────────────────────────────────────────────────
 function ResolveModal({ complaint, onClose, onSuccess, onOpenImage }) {
-=======
-// ── Resolve Modal ─────────────────────────────────────────────────────────
-function ResolveModal({ complaint, onClose, onSuccess }) {
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [status, setStatus] = useState(complaint.status);
   const [remarks, setRemarks] = useState(complaint.admin_remarks || "");
   const [loading, setLoading] = useState(false);
@@ -95,6 +104,10 @@ function ResolveModal({ complaint, onClose, onSuccess }) {
               <span className="font-semibold text-gray-800">{complaint.student_name} · {complaint.roll_number}</span>
             </div>
             <div className="flex items-center justify-between">
+              <span className="text-gray-500">Category</span>
+              <CategoryBadge category={complaint.category} />
+            </div>
+            <div className="flex items-center justify-between">
               <span className="text-gray-500">Department</span>
               <span className="font-medium text-gray-700">{complaint.department_name || "N/A"}</span>
             </div>
@@ -109,17 +122,16 @@ function ResolveModal({ complaint, onClose, onSuccess }) {
               <span className="text-gray-500">Current Status</span>
               <StatusBadge status={complaint.status} />
             </div>
-<<<<<<< HEAD
-            {(complaint.image_url || complaint.attachment_url) && (
+            {(complaint.image_url || complaint.attachment_url || complaint.image) && (
               <div className="pt-2 border-t border-slate-200/60 mt-2">
                 <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Attached Problem Photo</p>
                 <button
                   type="button"
-                  onClick={() => onOpenImage(getImageUrl(complaint.image_url || complaint.attachment_url))}
+                  onClick={() => onOpenImage(getImageUrl(complaint.image_url || complaint.attachment_url || complaint.image))}
                   className="inline-block group text-left cursor-pointer"
                 >
                   <img
-                    src={getImageUrl(complaint.image_url || complaint.attachment_url)}
+                    src={getImageUrl(complaint.image_url || complaint.attachment_url || complaint.image)}
                     alt="Problem attachment"
                     className="h-28 w-auto max-w-full object-cover rounded-xl border border-gray-200 shadow-xs group-hover:opacity-90 transition"
                   />
@@ -127,8 +139,6 @@ function ResolveModal({ complaint, onClose, onSuccess }) {
                 </button>
               </div>
             )}
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
           </div>
 
           {error && (
@@ -214,11 +224,7 @@ function ResolveModal({ complaint, onClose, onSuccess }) {
 }
 
 // ── Complaint Row ──────────────────────────────────────────────────────────
-<<<<<<< HEAD
 function ComplaintRow({ complaint, onManage, onOpenImage }) {
-=======
-function ComplaintRow({ complaint, onManage }) {
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -232,7 +238,10 @@ function ComplaintRow({ complaint, onManage }) {
         </td>
         <td className="py-3.5 px-5 max-w-[180px]">
           <p className="font-semibold text-gray-800 text-xs truncate">{complaint.title}</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">{complaint.department_name || complaint.category || "—"}</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">{complaint.department_name || "General"}</p>
+        </td>
+        <td className="py-3.5 px-5">
+          <CategoryBadge category={complaint.category} />
         </td>
         <td className="py-3.5 px-5">
           <p className="text-xs font-semibold text-gray-800">{complaint.student_name}</p>
@@ -264,7 +273,7 @@ function ComplaintRow({ complaint, onManage }) {
       {/* Expanded detail row */}
       {expanded && (
         <tr className="bg-slate-50/60">
-          <td colSpan={8} className="px-5 py-4">
+          <td colSpan={9} className="px-5 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Description</p>
@@ -282,34 +291,25 @@ function ComplaintRow({ complaint, onManage }) {
                 {complaint.location && (
                   <p className="text-gray-500">📍 {complaint.location}</p>
                 )}
-<<<<<<< HEAD
-                {(complaint.image_url || complaint.attachment_url) && (
+                {(complaint.image_url || complaint.attachment_url || complaint.image) && (
                   <div>
                     <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Problem Photo</p>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onOpenImage(getImageUrl(complaint.image_url || complaint.attachment_url));
+                        onOpenImage(getImageUrl(complaint.image_url || complaint.attachment_url || complaint.image));
                       }}
                       className="inline-block group text-left cursor-pointer"
                     >
                       <img
-                        src={getImageUrl(complaint.image_url || complaint.attachment_url)}
+                        src={getImageUrl(complaint.image_url || complaint.attachment_url || complaint.image)}
                         alt="Problem Photo"
                         className="h-32 w-auto max-w-full object-cover rounded-xl border border-gray-200 shadow-sm group-hover:scale-[1.02] transition"
                       />
                       <span className="block text-[11px] text-blue-600 font-semibold mt-1">📸 Click to preview image</span>
                     </button>
                   </div>
-=======
-                {complaint.attachment_url && (
-                  <a href={complaint.attachment_url} target="_blank" rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 text-blue-600 hover:underline font-medium">
-                    📎 View Attachment
-                  </a>
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
                 )}
               </div>
             </div>
@@ -340,14 +340,15 @@ export default function ManageComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-<<<<<<< HEAD
-  const [filters, setFilters] = useState({ status: "", priority: "", category_id: "", search: "" });
+  const [filters, setFilters] = useState({
+    status: "",
+    priority: "",
+    category: "",
+    search: "",
+    sortBy: "category_frequency",
+  });
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-=======
-  const [filters, setFilters] = useState({ status: "", priority: "", search: "" });
-  const [selectedComplaint, setSelectedComplaint] = useState(null);
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [toast, setToast] = useState("");
 
   const showToast = (msg) => {
@@ -372,26 +373,77 @@ export default function ManageComplaints() {
   useEffect(() => { fetchComplaints(); }, [fetchComplaints]);
 
   const handleFilterChange = (key, value) => setFilters((prev) => ({ ...prev, [key]: value }));
-<<<<<<< HEAD
-  const clearFilters = () => setFilters({ status: "", priority: "", category_id: "", search: "" });
-  const hasFilters = filters.status || filters.priority || filters.category_id || filters.search;
-=======
-  const clearFilters = () => setFilters({ status: "", priority: "", search: "" });
-  const hasFilters = filters.status || filters.priority || filters.search;
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+  const clearFilters = () => setFilters({ status: "", priority: "", category: "", search: "", sortBy: "category_frequency" });
+  const hasFilters = filters.status || filters.priority || filters.category || filters.search || filters.sortBy !== "category_frequency";
 
   const verifiedCount   = complaints.filter((c) => c.verified_by_teacher).length;
   const unverifiedCount = complaints.filter((c) => !c.verified_by_teacher).length;
 
+  // ── Calculate category complaint counts & ranking ────────────────────────
+  const categoryStats = useMemo(() => {
+    const counts = {};
+    CATEGORIES.filter((c) => c.value).forEach((cat) => {
+      counts[cat.value] = 0;
+    });
+
+    complaints.forEach((c) => {
+      const cat = c.category;
+      if (cat) {
+        counts[cat] = (counts[cat] || 0) + 1;
+      }
+    });
+
+    let topCategory = null;
+    let maxCount = 0;
+
+    Object.entries(counts).forEach(([cat, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        topCategory = cat;
+      }
+    });
+
+    return { counts, topCategory, maxCount };
+  }, [complaints]);
+
+  // ── Compute sorted complaints ──────────────────────────────────────────
+  const sortedComplaints = useMemo(() => {
+    let list = [...complaints];
+
+    if (filters.category) {
+      list = list.filter((c) => c.category === filters.category);
+    }
+
+    if (filters.sortBy === "category_frequency") {
+      list.sort((a, b) => {
+        const countA = categoryStats.counts[a.category] || 0;
+        const countB = categoryStats.counts[b.category] || 0;
+        if (countB !== countA) {
+          return countB - countA;
+        }
+        const priorityOrder = { URGENT: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+        const prioDiff = (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
+        if (prioDiff !== 0) return prioDiff;
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      });
+    } else if (filters.sortBy === "category_az") {
+      list.sort((a, b) => (a.category || "").localeCompare(b.category || ""));
+    } else if (filters.sortBy === "priority") {
+      const priorityOrder = { URGENT: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+      list.sort((a, b) => (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0));
+    } else if (filters.sortBy === "newest") {
+      list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    } else if (filters.sortBy === "status") {
+      list.sort((a, b) => (a.status || "").localeCompare(b.status || ""));
+    }
+
+    return list;
+  }, [complaints, filters.category, filters.sortBy, categoryStats]);
+
   return (
     <div className="space-y-6 animate-fade-in">
-
-<<<<<<< HEAD
-      {/* Image Preview Modal */}
       <ImageModal src={previewImage} onClose={() => setPreviewImage(null)} />
 
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       {/* Toast */}
       {toast && (
         <div className="fixed top-5 right-5 z-[60] bg-emerald-700 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-xl shadow-emerald-700/30 flex items-center gap-2 animate-slide-up">
@@ -404,10 +456,7 @@ export default function ManageComplaints() {
         <ResolveModal
           complaint={selectedComplaint}
           onClose={() => setSelectedComplaint(null)}
-<<<<<<< HEAD
           onOpenImage={setPreviewImage}
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
           onSuccess={() => {
             setSelectedComplaint(null);
             showToast("Complaint updated successfully!");
@@ -421,7 +470,7 @@ export default function ManageComplaints() {
         <div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Admin Panel</p>
           <h1 className="text-2xl font-bold text-gray-900">Manage Complaints</h1>
-          <p className="text-sm text-gray-500 mt-1">View, filter, and resolve all student complaints</p>
+          <p className="text-sm text-gray-500 mt-1">View, prioritize, and resolve student complaints by category</p>
         </div>
         <button
           onClick={fetchComplaints}
@@ -435,16 +484,73 @@ export default function ManageComplaints() {
         </button>
       </div>
 
-      {/* ── Summary Pills ── */}
-      {!loading && (
-        <div className="grid grid-cols-3 gap-3">
-          <SummaryPill label="Total" value={complaints.length} color="blue" />
-          <SummaryPill label="Teacher Verified" value={verifiedCount} color="emerald" />
-          <SummaryPill label="Unverified" value={unverifiedCount} color="amber" />
+      {/* ── Category Quick-Filter Cards & Ranking ── */}
+      {!loading && complaints.length > 0 && (
+        <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+              Complaints by Category (Click to Filter)
+            </h3>
+            {categoryStats.topCategory && categoryStats.maxCount > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                🔥 Highest Priority Category: <span className="underline">{categoryStats.topCategory}</span> ({categoryStats.maxCount})
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            {CATEGORIES.filter((c) => c.value).map((cat) => {
+              const count = categoryStats.counts[cat.value] || 0;
+              const isSelected = filters.category === cat.value;
+              const isTop = categoryStats.topCategory === cat.value && count > 0;
+              return (
+                <button
+                  key={cat.value}
+                  onClick={() => handleFilterChange("category", isSelected ? "" : cat.value)}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    isSelected
+                      ? "bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/20"
+                      : isTop
+                      ? "bg-amber-50/70 border-amber-300 text-gray-800 hover:bg-amber-100/70"
+                      : "bg-gray-50/70 border-gray-200 text-gray-700 hover:bg-gray-100/70"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-base">{cat.icon}</span>
+                    <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                      isSelected
+                        ? "bg-white/20 text-white"
+                        : isTop
+                        ? "bg-amber-200 text-amber-900"
+                        : "bg-gray-200 text-gray-800"
+                    }`}>
+                      {count}
+                    </span>
+                  </div>
+                  <p className={`text-xs font-bold mt-2 truncate ${isSelected ? "text-white" : "text-gray-900"}`}>
+                    {cat.label}
+                  </p>
+                  {isTop && (
+                    <p className={`text-[10px] font-semibold mt-0.5 ${isSelected ? "text-amber-200" : "text-amber-700"}`}>
+                      ★ Top Priority
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      {/* ── Filters ── */}
+      {/* ── Summary Pills ── */}
+      {!loading && (
+        <div className="grid grid-cols-3 gap-3">
+          <SummaryPill label="Total Complaints" value={complaints.length} color="blue" />
+          <SummaryPill label="Teacher Verified" value={verifiedCount} color="emerald" />
+          <SummaryPill label="Pending Verification" value={unverifiedCount} color="amber" />
+        </div>
+      )}
+
+      {/* ── Filters & Sorting Bar ── */}
       <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex-1 min-w-[200px] relative">
@@ -459,23 +565,30 @@ export default function ManageComplaints() {
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
             />
           </div>
+
+          {/* Category Filter */}
           <select
-<<<<<<< HEAD
-            value={filters.category_id}
-            onChange={(e) => handleFilterChange("category_id", e.target.value)}
+            value={filters.category}
+            onChange={(e) => handleFilterChange("category", e.target.value)}
             className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white"
           >
-            {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.icon} {c.label}
+              </option>
+            ))}
           </select>
+
+          {/* Status Filter */}
           <select
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
             value={filters.status}
             onChange={(e) => handleFilterChange("status", e.target.value)}
             className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white"
           >
             {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
+
+          {/* Priority Filter */}
           <select
             value={filters.priority}
             onChange={(e) => handleFilterChange("priority", e.target.value)}
@@ -483,6 +596,20 @@ export default function ManageComplaints() {
           >
             {PRIORITIES.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
+
+          {/* Sort By Dropdown */}
+          <select
+            value={filters.sortBy || "category_frequency"}
+            onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+            className="px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm text-blue-950 bg-blue-50 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
+          >
+            <option value="category_frequency">📊 Sort: Category with Most Complaints First (Priority)</option>
+            <option value="category_az">🔤 Sort: Category (A to Z)</option>
+            <option value="priority">⚡ Sort: Priority (Urgent First)</option>
+            <option value="newest">🕒 Sort: Newest First</option>
+            <option value="status">📌 Sort: By Status</option>
+          </select>
+
           {hasFilters && (
             <button
               onClick={clearFilters}
@@ -498,8 +625,8 @@ export default function ManageComplaints() {
 
       {/* ── Table ── */}
       {loading ? (
-        <TableSkeleton rows={6} cols={8} />
-      ) : complaints.length === 0 ? (
+        <TableSkeleton rows={6} cols={9} />
+      ) : sortedComplaints.length === 0 ? (
         <EmptyState
           icon="📭"
           title={hasFilters ? "No complaints match your filters" : "No complaints found"}
@@ -518,6 +645,7 @@ export default function ManageComplaints() {
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
                   <th className="py-3.5 px-5">ID</th>
                   <th className="py-3.5 px-5">Complaint</th>
+                  <th className="py-3.5 px-5">Category</th>
                   <th className="py-3.5 px-5">Student</th>
                   <th className="py-3.5 px-5">Priority</th>
                   <th className="py-3.5 px-5">Status</th>
@@ -527,21 +655,22 @@ export default function ManageComplaints() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {complaints.map((c) => (
-<<<<<<< HEAD
-                  <ComplaintRow key={c.id} complaint={c} onManage={setSelectedComplaint} onOpenImage={setPreviewImage} />
-=======
-                  <ComplaintRow key={c.id} complaint={c} onManage={setSelectedComplaint} />
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+                {sortedComplaints.map((c) => (
+                  <ComplaintRow
+                    key={c.id}
+                    complaint={c}
+                    onManage={setSelectedComplaint}
+                    onOpenImage={setPreviewImage}
+                  />
                 ))}
               </tbody>
             </table>
           </div>
           <div className="px-5 py-3 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
             <p className="text-xs text-gray-400">
-              {complaints.length} complaint{complaints.length !== 1 ? "s" : ""}
+              Showing {sortedComplaints.length} of {complaints.length} complaint{complaints.length !== 1 ? "s" : ""}
               {hasFilters ? " (filtered)" : ""}
-              &ensp;·&ensp;Click any row to expand details
+              &ensp;·&ensp;Click any row to expand details & attached images
             </p>
           </div>
         </div>

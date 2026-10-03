@@ -20,8 +20,6 @@ export default function StudentDashboard() {
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
 
-  useEffect(() => { fetchComplaints(); }, []);
-
   const fetchComplaints = async () => {
     try {
       setLoading(true);
@@ -41,6 +39,10 @@ export default function StudentDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
 
   const counts = {
     total: complaints.length,

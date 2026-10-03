@@ -1,32 +1,25 @@
-<<<<<<< HEAD
 const fs = require("fs");
 const path = require("path");
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 const pool = require("../config/db");
 const QUERIES = require("../config/queries");
 
 const generateComplaintNumber = require("../utils/generateComplaintNumber");
-
 const COMPLAINT_STATUS = require("../constants/complaintStatus");
-
 const COMPLAINT_PRIORITY = require("../constants/complaintPriority");
 
-<<<<<<< HEAD
-// Helper to ensure image_url column exists in complaints table
+// Helper to ensure image_url & attachment_url columns exist in complaints table
 let columnChecked = false;
 const ensureImageColumnExists = async (connection) => {
   if (columnChecked) return;
   try {
     await connection.query("ALTER TABLE complaints ADD COLUMN image_url TEXT NULL");
-  } catch (_) {
-    // Column already exists or failed non-critically
-  }
+  } catch (_) {}
+  try {
+    await connection.query("ALTER TABLE complaints ADD COLUMN attachment_url VARCHAR(500) NULL");
+  } catch (_) {}
   columnChecked = true;
 };
 
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 // =====================================================
 // CREATE COMPLAINT
 // =====================================================
@@ -38,18 +31,12 @@ const createComplaint = async ({
   description,
   location,
   priority,
-<<<<<<< HEAD
   image,
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 }) => {
   const connection = await pool.getConnection();
 
   try {
-<<<<<<< HEAD
     await ensureImageColumnExists(connection);
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
     await connection.beginTransaction();
 
     // -----------------------------------------------
@@ -93,7 +80,6 @@ const createComplaint = async ({
     const complaintPriority = priority || COMPLAINT_PRIORITY.MEDIUM;
 
     // -----------------------------------------------
-<<<<<<< HEAD
     // Process optional problem image
     // -----------------------------------------------
 
@@ -127,8 +113,6 @@ const createComplaint = async ({
     }
 
     // -----------------------------------------------
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
     // Insert complaint
     // -----------------------------------------------
 
@@ -143,10 +127,8 @@ const createComplaint = async ({
         location || null,
         complaintPriority,
         COMPLAINT_STATUS.PENDING_REVIEW,
-<<<<<<< HEAD
         savedImageUrl,
-=======
->>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
+        savedImageUrl,
       ],
     );
 

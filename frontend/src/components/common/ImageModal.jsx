@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function ImageModal({ src, onClose, alt = "Problem Photo" }) {
   if (!src) return null;
 

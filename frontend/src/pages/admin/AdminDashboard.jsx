@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAdminDashboardStats } from "../../services/adminService";
 import { useAuth } from "../../context/AuthContext";
-import { StatsSkeleton, ErrorAlert, EmptyState } from "../../components/common/Skeleton";
+import { StatsSkeleton, ErrorAlert } from "../../components/common/Skeleton";
 
 // ── Stat Card ─────────────────────────────────────────────────────────────
 function StatCard({ label, value, icon, bg, text, subLabel, onClick, active }) {
@@ -40,8 +40,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => { fetchStats(); }, []);
-
   const fetchStats = async () => {
     try {
       setLoading(true);
@@ -54,6 +52,10 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   const c = stats?.complaints || {};
   const u = stats?.users || {};
