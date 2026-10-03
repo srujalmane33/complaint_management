@@ -15,6 +15,21 @@ const createComplaint = async (req, res) => {
       description,
       location,
       priority,
+<<<<<<< HEAD
+      image,
+      image_url,
+    } = req.body;
+
+    const complaint = await complaintService.createComplaint({
+      userId: req.user.userId,
+      categoryId: category_id,
+      title,
+      description,
+      location,
+      priority,
+      image: image || image_url || null,
+    });
+=======
     } = req.body;
 
 
@@ -32,6 +47,7 @@ const createComplaint = async (req, res) => {
 
         priority,
       });
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 
 
     return res.status(201).json({

@@ -3,6 +3,11 @@ import { getAllComplaints, resolveComplaint } from "../../services/adminService"
 import StatusBadge from "../../components/common/StatusBadge";
 import PriorityBadge from "../../components/common/PriorityBadge";
 import { TableSkeleton, ErrorAlert, EmptyState, Spinner } from "../../components/common/Skeleton";
+<<<<<<< HEAD
+import ImageModal from "../../components/common/ImageModal";
+import { getImageUrl } from "../../utils/getImageUrl";
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 
 const STATUSES = [
   { value: "", label: "All Statuses" },
@@ -22,8 +27,22 @@ const PRIORITIES = [
   { value: "URGENT", label: "⚡ Urgent" },
 ];
 
+<<<<<<< HEAD
+const CATEGORIES = [
+  { value: "", label: "All Categories" },
+  { value: "1", label: "Classroom & Infrastructure" },
+  { value: "2", label: "Laboratory & Equipment" },
+  { value: "3", label: "Hostel & Mess" },
+  { value: "4", label: "Library Services" },
+  { value: "5", label: "Electrical / Maintenance" },
+];
+
+// ── Resolve Modal ─────────────────────────────────────────────────────────
+function ResolveModal({ complaint, onClose, onSuccess, onOpenImage }) {
+=======
 // ── Resolve Modal ─────────────────────────────────────────────────────────
 function ResolveModal({ complaint, onClose, onSuccess }) {
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [status, setStatus] = useState(complaint.status);
   const [remarks, setRemarks] = useState(complaint.admin_remarks || "");
   const [loading, setLoading] = useState(false);
@@ -90,6 +109,26 @@ function ResolveModal({ complaint, onClose, onSuccess }) {
               <span className="text-gray-500">Current Status</span>
               <StatusBadge status={complaint.status} />
             </div>
+<<<<<<< HEAD
+            {(complaint.image_url || complaint.attachment_url) && (
+              <div className="pt-2 border-t border-slate-200/60 mt-2">
+                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Attached Problem Photo</p>
+                <button
+                  type="button"
+                  onClick={() => onOpenImage(getImageUrl(complaint.image_url || complaint.attachment_url))}
+                  className="inline-block group text-left cursor-pointer"
+                >
+                  <img
+                    src={getImageUrl(complaint.image_url || complaint.attachment_url)}
+                    alt="Problem attachment"
+                    className="h-28 w-auto max-w-full object-cover rounded-xl border border-gray-200 shadow-xs group-hover:opacity-90 transition"
+                  />
+                  <span className="block text-[11px] text-blue-600 font-semibold mt-1">🔍 Click to preview image</span>
+                </button>
+              </div>
+            )}
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
           </div>
 
           {error && (
@@ -175,7 +214,11 @@ function ResolveModal({ complaint, onClose, onSuccess }) {
 }
 
 // ── Complaint Row ──────────────────────────────────────────────────────────
+<<<<<<< HEAD
+function ComplaintRow({ complaint, onManage, onOpenImage }) {
+=======
 function ComplaintRow({ complaint, onManage }) {
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -239,12 +282,34 @@ function ComplaintRow({ complaint, onManage }) {
                 {complaint.location && (
                   <p className="text-gray-500">📍 {complaint.location}</p>
                 )}
+<<<<<<< HEAD
+                {(complaint.image_url || complaint.attachment_url) && (
+                  <div>
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Problem Photo</p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenImage(getImageUrl(complaint.image_url || complaint.attachment_url));
+                      }}
+                      className="inline-block group text-left cursor-pointer"
+                    >
+                      <img
+                        src={getImageUrl(complaint.image_url || complaint.attachment_url)}
+                        alt="Problem Photo"
+                        className="h-32 w-auto max-w-full object-cover rounded-xl border border-gray-200 shadow-sm group-hover:scale-[1.02] transition"
+                      />
+                      <span className="block text-[11px] text-blue-600 font-semibold mt-1">📸 Click to preview image</span>
+                    </button>
+                  </div>
+=======
                 {complaint.attachment_url && (
                   <a href={complaint.attachment_url} target="_blank" rel="noreferrer"
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1.5 text-blue-600 hover:underline font-medium">
                     📎 View Attachment
                   </a>
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
                 )}
               </div>
             </div>
@@ -275,8 +340,14 @@ export default function ManageComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+<<<<<<< HEAD
+  const [filters, setFilters] = useState({ status: "", priority: "", category_id: "", search: "" });
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+=======
   const [filters, setFilters] = useState({ status: "", priority: "", search: "" });
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [toast, setToast] = useState("");
 
   const showToast = (msg) => {
@@ -301,8 +372,13 @@ export default function ManageComplaints() {
   useEffect(() => { fetchComplaints(); }, [fetchComplaints]);
 
   const handleFilterChange = (key, value) => setFilters((prev) => ({ ...prev, [key]: value }));
+<<<<<<< HEAD
+  const clearFilters = () => setFilters({ status: "", priority: "", category_id: "", search: "" });
+  const hasFilters = filters.status || filters.priority || filters.category_id || filters.search;
+=======
   const clearFilters = () => setFilters({ status: "", priority: "", search: "" });
   const hasFilters = filters.status || filters.priority || filters.search;
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 
   const verifiedCount   = complaints.filter((c) => c.verified_by_teacher).length;
   const unverifiedCount = complaints.filter((c) => !c.verified_by_teacher).length;
@@ -310,6 +386,12 @@ export default function ManageComplaints() {
   return (
     <div className="space-y-6 animate-fade-in">
 
+<<<<<<< HEAD
+      {/* Image Preview Modal */}
+      <ImageModal src={previewImage} onClose={() => setPreviewImage(null)} />
+
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       {/* Toast */}
       {toast && (
         <div className="fixed top-5 right-5 z-[60] bg-emerald-700 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-xl shadow-emerald-700/30 flex items-center gap-2 animate-slide-up">
@@ -322,6 +404,10 @@ export default function ManageComplaints() {
         <ResolveModal
           complaint={selectedComplaint}
           onClose={() => setSelectedComplaint(null)}
+<<<<<<< HEAD
+          onOpenImage={setPreviewImage}
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
           onSuccess={() => {
             setSelectedComplaint(null);
             showToast("Complaint updated successfully!");
@@ -374,6 +460,16 @@ export default function ManageComplaints() {
             />
           </div>
           <select
+<<<<<<< HEAD
+            value={filters.category_id}
+            onChange={(e) => handleFilterChange("category_id", e.target.value)}
+            className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white"
+          >
+            {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+          <select
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
             value={filters.status}
             onChange={(e) => handleFilterChange("status", e.target.value)}
             className="px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition bg-white"
@@ -432,7 +528,11 @@ export default function ManageComplaints() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {complaints.map((c) => (
+<<<<<<< HEAD
+                  <ComplaintRow key={c.id} complaint={c} onManage={setSelectedComplaint} onOpenImage={setPreviewImage} />
+=======
                   <ComplaintRow key={c.id} complaint={c} onManage={setSelectedComplaint} />
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
                 ))}
               </tbody>
             </table>

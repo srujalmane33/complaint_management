@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+const fs = require("fs");
+const path = require("path");
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 const pool = require("../config/db");
 const QUERIES = require("../config/queries");
 
@@ -7,6 +12,21 @@ const COMPLAINT_STATUS = require("../constants/complaintStatus");
 
 const COMPLAINT_PRIORITY = require("../constants/complaintPriority");
 
+<<<<<<< HEAD
+// Helper to ensure image_url column exists in complaints table
+let columnChecked = false;
+const ensureImageColumnExists = async (connection) => {
+  if (columnChecked) return;
+  try {
+    await connection.query("ALTER TABLE complaints ADD COLUMN image_url TEXT NULL");
+  } catch (_) {
+    // Column already exists or failed non-critically
+  }
+  columnChecked = true;
+};
+
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 // =====================================================
 // CREATE COMPLAINT
 // =====================================================
@@ -18,10 +38,18 @@ const createComplaint = async ({
   description,
   location,
   priority,
+<<<<<<< HEAD
+  image,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
 }) => {
   const connection = await pool.getConnection();
 
   try {
+<<<<<<< HEAD
+    await ensureImageColumnExists(connection);
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
     await connection.beginTransaction();
 
     // -----------------------------------------------
@@ -65,6 +93,42 @@ const createComplaint = async ({
     const complaintPriority = priority || COMPLAINT_PRIORITY.MEDIUM;
 
     // -----------------------------------------------
+<<<<<<< HEAD
+    // Process optional problem image
+    // -----------------------------------------------
+
+    let savedImageUrl = null;
+    if (image && typeof image === "string") {
+      if (image.startsWith("data:image/")) {
+        try {
+          const matches = image.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+          if (matches) {
+            const ext = matches[1] === "jpeg" ? "jpg" : matches[1];
+            const base64Data = matches[2];
+            const buffer = Buffer.from(base64Data, "base64");
+            const filename = `img_${Date.now()}_${Math.floor(Math.random() * 10000)}.${ext}`;
+            
+            const uploadsDir = path.join(process.cwd(), "uploads");
+            if (!fs.existsSync(uploadsDir)) {
+              fs.mkdirSync(uploadsDir, { recursive: true });
+            }
+
+            fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+            savedImageUrl = `/uploads/${filename}`;
+          } else {
+            savedImageUrl = image;
+          }
+        } catch (imgErr) {
+          console.error("Failed to save problem image:", imgErr);
+        }
+      } else {
+        savedImageUrl = image;
+      }
+    }
+
+    // -----------------------------------------------
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
     // Insert complaint
     // -----------------------------------------------
 
@@ -79,6 +143,10 @@ const createComplaint = async ({
         location || null,
         complaintPriority,
         COMPLAINT_STATUS.PENDING_REVIEW,
+<<<<<<< HEAD
+        savedImageUrl,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       ],
     );
 

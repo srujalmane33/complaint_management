@@ -12,6 +12,11 @@ export default function CreateComplaint() {
     location: "",
     priority: COMPLAINT_PRIORITY.MEDIUM,
   });
+<<<<<<< HEAD
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,6 +24,29 @@ export default function CreateComplaint() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+<<<<<<< HEAD
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        return setError("Image size must be less than 10MB");
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setImageFile(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setImageFile(null);
+  };
+
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -35,6 +63,10 @@ export default function CreateComplaint() {
       await createComplaint({
         ...formData,
         category_id: Number(formData.category_id),
+<<<<<<< HEAD
+        image: imageFile,
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
       });
       navigate("/student/dashboard");
     } catch (err) {
@@ -142,6 +174,45 @@ export default function CreateComplaint() {
           ></textarea>
         </div>
 
+<<<<<<< HEAD
+        {/* Optional Problem Image Upload */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
+            Problem Photo / Image <span className="text-gray-400 font-normal lowercase">(optional)</span>
+          </label>
+          {imagePreview ? (
+            <div className="relative inline-block border border-gray-200 rounded-xl overflow-hidden group">
+              <img src={imagePreview} alt="Problem Preview" className="h-44 w-auto object-cover rounded-xl" />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-md hover:bg-red-700 transition"
+                title="Remove image"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-xl p-4 cursor-pointer bg-slate-50/50 hover:bg-blue-50/20 transition">
+              <div className="flex flex-col items-center justify-center text-center space-y-1">
+                <span className="text-2xl">📸</span>
+                <p className="text-xs font-semibold text-gray-700">Click to upload an image of the problem</p>
+                <p className="text-[11px] text-gray-400">PNG, JPG, WEBP up to 10MB</p>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+          )}
+        </div>
+
+=======
+>>>>>>> 1d2e705fdfb04a709876f9cc0482ffc24466a7a2
         <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
           <Link
             to="/student/dashboard"
